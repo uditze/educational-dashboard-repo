@@ -73,9 +73,49 @@ function updatePaginationControls() {
     nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
 }
 
+// THIS IS THE FINAL, WORKING VERSION OF THE ANALYSIS FUNCTION
 async function handleAnalysisRequest() {
-    // This function is temporarily disabled. We will add the new logic in the next step.
-    alert("פונקציית הניתוח בבנייה מחדש. היא תחובר בשלב הבא.");
+    const question = analysisQuestion.value.trim();
+
+    if (!question) {
+        alert('אנא הזן שאלה לניתוח.');
+        return;
+    }
+
+    // Set UI to loading state
+    analyzeBtn.disabled = true;
+    analyzeBtn.textContent = 'מנתח...';
+    analysisResponseArea.innerHTML = '<p class="placeholder">שולח בקשה לניתוח כלל-השיחות, תהליך זה עשוי לקחת מספר רגעים...</p>';
+
+    try {
+        const functionUrl = 'https://us-central1-educational-bot-template.cloudfunctions.net/analyzeConversation';
+        
+        const response = await fetch(functionUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                question: question 
+            })
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: `שגיאת שרת: ${response.status}` }));
+            throw new Error(errorData.error);
+        }
+
+        const result = await response.json();
+        
+        // Display result, converting line breaks to <br> tags for proper HTML rendering
+        analysisResponseArea.innerHTML = result.analysis.replace(/\n/g, '<br>');
+
+    } catch (error) {
+        console.error('Error during analysis:', error);
+        analysisResponseArea.innerHTML = `<p style="color: red;">אירעה שגיאה בתהליך הניתוח: ${error.message}</p>`;
+    } finally {
+        // Reset button state
+        analyzeBtn.disabled = false;
+        analyzeBtn.textContent = 'נתח את כל השיחות';
+    }
 }
 
 async function fetchAllConversations() {
@@ -95,7 +135,6 @@ async function fetchAllConversations() {
         allConversations = querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
         totalConversationsCount.textContent = allConversations.length;
         
-        // Enable the analyze button only if there are conversations
         analyzeBtn.disabled = allConversations.length === 0;
         
         renderPage(1);
