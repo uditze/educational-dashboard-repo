@@ -29,7 +29,6 @@ const loadingIndicator = document.getElementById('loading-indicator');
 const prevPageBtn = document.getElementById('prev-page-btn');
 const nextPageBtn = document.getElementById('next-page-btn');
 const pageInfo = document.getElementById('page-info');
-const conversationSelect = document.getElementById('conversation-select');
 const analysisQuestion = document.getElementById('analysis-question');
 const analyzeBtn = document.getElementById('analyze-btn');
 const analysisResponseArea = document.getElementById('analysis-response-area');
@@ -74,63 +73,9 @@ function updatePaginationControls() {
     nextPageBtn.disabled = currentPage === totalPages || totalPages === 0;
 }
 
-function populateConversationSelect() {
-    if (allConversations.length === 0) {
-        conversationSelect.innerHTML = '<option>אין שיחות זמינות</option>';
-        return;
-    };
-
-    conversationSelect.innerHTML = ''; // Clear the "loading..." option
-    allConversations.forEach(conversation => {
-        const option = document.createElement('option');
-        option.value = conversation.id;
-        option.textContent = `שיחה מ-${formatTimestamp(conversation.data.createdAt)} (ID: ...${conversation.id.slice(-6)})`;
-        conversationSelect.appendChild(option);
-    });
-    conversationSelect.disabled = false;
-    analyzeBtn.disabled = false;
-}
-
 async function handleAnalysisRequest() {
-    const conversationId = conversationSelect.value;
-    const question = analysisQuestion.value.trim();
-
-    if (!conversationId) { alert('אנא בחר שיחה לניתוח.'); return; }
-    if (!question) { alert('אנא הזן שאלה לניתוח.'); return; }
-
-    const conversation = allConversations.find(c => c.id === conversationId);
-    if (!conversation) { alert('שגיאה: לא נמצאה שיחה תואמת.'); return; }
-
-    analyzeBtn.disabled = true;
-    analyzeBtn.textContent = 'מנתח...';
-    analysisResponseArea.innerHTML = '<p class="placeholder">שולח בקשה לניתוח, אנא המתן...</p>';
-
-    try {
-        const functionUrl = 'https://us-central1-educational-bot-template.cloudfunctions.net/analyzeConversation';
-        const response = await fetch(functionUrl, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                transcript: conversation.data.messages,
-                question: question
-            })
-        });
-
-        if (!response.ok) {
-            const errorData = await response.json();
-            throw new Error(errorData.error || `שגיאת שרת: ${response.status}`);
-        }
-
-        const result = await response.json();
-        analysisResponseArea.innerHTML = result.analysis.replace(/\n/g, '<br>');
-
-    } catch (error) {
-        console.error('Error during analysis:', error);
-        analysisResponseArea.innerHTML = `<p style="color: red;">אירעה שגיאה: ${error.message}</p>`;
-    } finally {
-        analyzeBtn.disabled = false;
-        analyzeBtn.textContent = 'נתח שיחה';
-    }
+    // This function is temporarily disabled. We will add the new logic in the next step.
+    alert("פונקציית הניתוח בבנייה מחדש. היא תחובר בשלב הבא.");
 }
 
 async function fetchAllConversations() {
@@ -149,7 +94,10 @@ async function fetchAllConversations() {
 
         allConversations = querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
         totalConversationsCount.textContent = allConversations.length;
-        populateConversationSelect();
+        
+        // Enable the analyze button only if there are conversations
+        analyzeBtn.disabled = allConversations.length === 0;
+        
         renderPage(1);
     } catch (error) {
         console.error("Error loading conversations: ", error);
