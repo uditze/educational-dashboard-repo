@@ -21,59 +21,59 @@ const db = getFirestore(app);
 const chatContainer = document.getElementById('chat-container');
 const idPlaceholder = document.getElementById('conversation-id-placeholder');
 
-// Function to add a message bubble to the page
 function displayMessage(text, sender) {
     const messageDiv = document.createElement('div');
-    // The CSS classes 'message', 'user-message', and 'ai-message' come from view-style.css
     messageDiv.classList.add('message', sender === 'user' ? 'user-message' : 'ai-message');
-    // Use innerHTML to correctly render line breaks from the AI
     messageDiv.innerHTML = text.replace(/\n/g, '<br>');
     chatContainer.appendChild(messageDiv);
 }
 
-// Main function to load a single conversation
 async function loadConversation() {
-    // 1. Get the conversation ID from the URL (e.g., ?id=XXXXX)
+    console.log("Debug: Starting loadConversation function...");
+
     const urlParams = new URLSearchParams(window.location.search);
     const conversationId = urlParams.get('id');
 
     if (!conversationId) {
+        console.error("Debug: No conversation ID found in URL.");
         chatContainer.innerHTML = '<p>שגיאה: לא סופק מזהה שיחה בכתובת ה-URL.</p>';
         if(idPlaceholder) idPlaceholder.textContent = 'לא ידוע';
         return;
     }
 
+    console.log(`Debug: Attempting to load conversation with ID: "${conversationId}"`);
     if(idPlaceholder) idPlaceholder.textContent = conversationId;
 
     try {
-        // 2. Create a reference to the specific document in the 'conversations' collection
+        console.log("Debug: Creating document reference...");
         const docRef = doc(db, 'conversations', conversationId);
-        
-        // 3. Fetch the document data from Firestore
+        console.log("Debug: Document reference path:", docRef.path);
+
+        console.log("Debug: Attempting to fetch document from Firestore...");
         const docSnap = await getDoc(docRef);
+        console.log("Debug: Firestore request finished.");
 
         if (docSnap.exists()) {
+            console.log("Debug: Document exists. Processing data...");
             const conversation = docSnap.data();
             const messages = conversation.messages || [];
 
-            // 4. Clear any existing content and display the messages from the conversation
             chatContainer.innerHTML = '';
             messages.forEach(message => {
-                // We show messages from 'user' and 'assistant' (the AI)
                 if (message.role === 'user' || message.role === 'assistant') {
                     displayMessage(message.content, message.role);
                 }
             });
-            // Scroll to the bottom of the chat to show the latest messages
             chatContainer.scrollTop = chatContainer.scrollHeight;
+            console.log("Debug: Finished rendering messages.");
         } else {
+            console.warn("Debug: Document does not exist for ID:", conversationId);
             chatContainer.innerHTML = `<p>שגיאה: לא נמצאה שיחה עם המזהה ${conversationId}.</p>`;
         }
     } catch (error) {
-        console.error("Error loading single conversation:", error);
-        chatContainer.innerHTML = '<p>אירעה שגיאה בטעינת השיחה. בדוק את מסוף המפתחים (F12) לקבלת פרטים נוספים.</p>';
+        console.error("Debug: A detailed error occurred in the try-catch block:", error);
+        chatContainer.innerHTML = `<p>אירעה שגיאה מפורטת בטעינת השיחה. בדוק את המסוף לקבלת פרטים.</p>`;
     }
 }
 
-// Run the main function when the page loads
 document.addEventListener('DOMContentLoaded', loadConversation);
