@@ -2,7 +2,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, getDocs, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// Firebase configuration object (using the same one from the bot project)
+// Firebase configuration object
 const firebaseConfig = {
   apiKey: "AIzaSyBerLhnW4G-ZUfwX6-h7YcMJpWIEU9hYSw",
   authDomain: "educational-bot-template.firebaseapp.com",
@@ -17,80 +17,112 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-// DOM Elements
+// --- Global State ---
+let allConversations = [];
+let currentPage = 1;
+const ITEMS_PER_PAGE = 6;
+
+// --- DOM Elements ---
+const totalConversationsCount = document.getElementById('total-conversations-count');
 const listContainer = document.getElementById('conversations-list-container');
 const loadingIndicator = document.getElementById('loading-indicator');
+const prevPageBtn = document.getElementById('prev-page-btn');
+const nextPageBtn = document.getElementById('next-page-btn');
+const pageInfo = document.getElementById('page-info');
 
-// Function to format Firestore Timestamps for display
+// --- Functions ---
+
 function formatTimestamp(timestamp) {
     if (!timestamp || typeof timestamp.toDate !== 'function') {
         return 'זמן לא זמין';
     }
-    // Convert Firestore Timestamp to JavaScript Date object
     const date = timestamp.toDate();
-    // Format the date and time for the Hebrew locale
     return date.toLocaleString('he-IL', {
-        year: 'numeric',
-        month: '2-digit',
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit'
+        year: 'numeric', month: '2-digit', day: '2-digit',
+        hour: '2-digit', minute: '2-digit'
     });
 }
 
-// Main function to load and display conversations
-async function loadConversations() {
+function renderPage(page) {
+    listContainer.innerHTML = '';
+    currentPage = page;
+
+    const start = (page - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
+    const paginatedItems = allConversations.slice(start, end);
+
+    paginatedItems.forEach(conversation => {
+        const itemDiv = document.createElement('div');
+        itemDiv.className = 'conversation-item';
+
+        const link = document.createElement('a');
+        link.href = `view.html?id=${conversation.id}`;
+        link.textContent = `שיחה: ${conversation.id}`;
+        link.target = "_blank";
+
+        const dateSpan = document.createElement('span');
+        dateSpan.textContent = `עודכן לאחרונה: ${formatTimestamp(conversation.data.lastUpdatedAt)}`;
+
+        itemDiv.appendChild(link);
+        itemDiv.appendChild(dateSpan);
+        listContainer.appendChild(itemDiv);
+    });
+
+    updatePaginationControls();
+}
+
+function updatePaginationControls() {
+    const totalPages = Math.ceil(allConversations.length / ITEMS_PER_PAGE);
+    pageInfo.textContent = `עמוד ${currentPage} מתוך ${totalPages}`;
+
+    prevPageBtn.disabled = currentPage === 1;
+    nextPageBtn.disabled = currentPage === totalPages;
+}
+
+async function fetchAllConversations() {
     try {
-        // Create a query to get all documents from the 'conversations' collection,
-        // ordered by the last update time in descending order (newest first).
         const conversationsRef = collection(db, 'conversations');
         const q = query(conversationsRef, orderBy('lastUpdatedAt', 'desc'));
-
-        // Execute the query
         const querySnapshot = await getDocs(q);
 
-        // Clear the loading indicator
         if (loadingIndicator) {
-            listContainer.innerHTML = '';
+            loadingIndicator.style.display = 'none';
         }
 
         if (querySnapshot.empty) {
             listContainer.innerHTML = '<p>לא נמצאו שיחות שמורות במסד הנתונים.</p>';
+            totalConversationsCount.textContent = '0';
             return;
         }
 
-        // Loop through each conversation document
-        querySnapshot.forEach(doc => {
-            const conversationData = doc.data();
-            const conversationId = doc.id;
+        allConversations = querySnapshot.docs.map(doc => ({ id: doc.id, data: doc.data() }));
 
-            // Create the HTML elements for the conversation item
-            const itemDiv = document.createElement('div');
-            itemDiv.className = 'conversation-item';
+        // Update total count
+        totalConversationsCount.textContent = allConversations.length;
 
-            const link = document.createElement('a');
-            // This link points to the view.html page, passing the unique ID of the conversation in the URL
-            link.href = `view.html?id=${conversationId}`;
-            link.textContent = `שיחה: ${conversationId}`;
-            link.target = "_blank"; // Open in a new tab
-
-            const dateSpan = document.createElement('span');
-            dateSpan.textContent = `עודכן לאחרונה: ${formatTimestamp(conversationData.lastUpdatedAt)}`;
-
-            // Append the elements to the container
-            itemDiv.appendChild(link);
-            itemDiv.appendChild(dateSpan);
-            listContainer.appendChild(itemDiv);
-        });
+        // Initial render
+        renderPage(1);
 
     } catch (error) {
         console.error("Error loading conversations: ", error);
-        if (loadingIndicator) {
-            loadingIndicator.textContent = 'אירעה שגיאה בטעינת השיחות.';
-        }
-        listContainer.innerHTML = '<p>אירעה שגיאה בטעינת השיחות. ודא שהבוט פעל לפחות פעם אחת ושמר שיחה, ובדוק את הגדרות האבטחה של Firestore.</p>';
+        listContainer.innerHTML = '<p>אירעה שגיאה בטעינת השיחות.</p>';
+        totalConversationsCount.textContent = 'שגיאה';
     }
 }
 
-// Run the main function when the page's content has finished loading
-document.addEventListener('DOMContentLoaded', loadConversations);
+// --- Event Listeners ---
+prevPageBtn.addEventListener('click', () => {
+    if (currentPage > 1) {
+        renderPage(currentPage - 1);
+    }
+});
+
+nextPageBtn.addEventListener('click', () => {
+    const totalPages = Math.ceil(allConversations.length / ITEMS_PER_PAGE);
+    if (currentPage < totalPages) {
+        renderPage(currentPage + 1);
+    }
+});
+
+// --- Initial Load ---
+document.addEventListener('DOMContentLoaded', fetchAllConversations);
