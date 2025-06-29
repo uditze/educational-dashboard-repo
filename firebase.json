@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "target": "dashboard",
+    "site": "educational-dashboard1",
     "public": "public",
     "ignore": [
       "firebase.json",
