@@ -21,19 +21,13 @@
         </section>
 
         <section id="analysis-container">
-            <h2>ניתוח תשובות הסטודנטים באמצעות AI</h2>
+            <h2>ניתוח כלל-שיחות באמצעות AI</h2>
             <div id="analysis-controls">
                 <div class="control-group">
-                    <label for="conversation-select">1. בחר שיחה לניתוח:</label>
-                    <select id="conversation-select" disabled>
-                        <option>טוען שיחות...</option>
-                    </select>
+                    <label for="analysis-question">הזן שאלה לניתוח על כלל השיחות:</label>
+                    <textarea id="analysis-question" rows="3" placeholder="לדוגמה: מהן הטעויות הנפוצות ביותר שעשו הסטודנטים באנמנזה?"></textarea>
                 </div>
-                <div class="control-group">
-                    <label for="analysis-question">2. הזן שאלה לניתוח:</label>
-                    <textarea id="analysis-question" rows="3" placeholder="לדוגמה: האם הסטודנט פספס אבחנה מבדלת חשובה?"></textarea>
-                </div>
-                <button id="analyze-btn" disabled>נתח שיחה</button>
+                <button id="analyze-btn" disabled>נתח את כל השיחות</button>
             </div>
             <div id="analysis-response-container">
                 <h3>תוצאות הניתוח:</h3>
