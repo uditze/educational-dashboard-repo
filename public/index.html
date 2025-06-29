@@ -3,19 +3,37 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>דשבורד - רשימת שיחות</title>
+    <title>דשבורד ניהול - בוט קליני</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <header>
         <h1>דשבורד ניהול</h1>
-        <p>רשימת כל שיחות הסטודנטים עם הבוט הקליני</p>
+        <p>ניתוח ומעקב אחר שיחות סטודנטים עם הבוט הקליני</p>
     </header>
+
     <main>
+        <section id="stats-container">
+            <div class="stat-item">
+                <h2>סה"כ שיחות</h2>
+                <p id="total-conversations-count">טוען...</p>
+            </div>
+        </section>
+
+        <section id="analysis-container">
+            <h2>ניתוח תשובות הסטודנטים באמצעות AI</h2>
+            <p>בשלב הבא, נוסיף כאן את היכולת לשאול שאלות על כלל השיחות ולקבל ניתוח מרוכז.</p>
+            </section>
+
         <section id="conversations-section">
-            <h2>רשימת שיחות</h2>
+            <h2>רשימת שיחות אחרונות</h2>
             <div id="conversations-list-container">
                 <p id="loading-indicator">טוען שיחות ממסד הנתונים...</p>
+            </div>
+            <div id="pagination-controls">
+                <button id="prev-page-btn" disabled>הקודם</button>
+                <span id="page-info"></span>
+                <button id="next-page-btn" disabled>הבא</button>
             </div>
         </section>
     </main>
