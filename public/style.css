@@ -1,3 +1,4 @@
+/* General Body and Layout */
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     background-color: #f0f2f5;
@@ -21,6 +22,9 @@ main {
     padding: 2rem;
     max-width: 1200px;
     margin: 0 auto;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
 }
 
 section {
@@ -28,7 +32,6 @@ section {
     padding: 1.5rem;
     border-radius: 8px;
     box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-    margin-bottom: 2rem;
 }
 
 h2 {
@@ -37,10 +40,31 @@ h2 {
     margin-bottom: 1rem;
 }
 
+/* --- Stats Container Styles --- */
+#stats-container {
+    text-align: center;
+}
+.stat-item h2 {
+    font-size: 1.2rem;
+    color: #555;
+    margin-bottom: 0.5rem;
+}
+.stat-item p {
+    font-size: 2.5rem;
+    font-weight: bold;
+    color: #005a9c;
+    margin: 0;
+}
+
+/* --- Analysis Container Styles --- */
+#analysis-container p {
+    font-size: 1rem;
+    color: #666;
+}
+
 /* --- Conversations List Styles --- */
 #conversations-list-container {
-    max-height: 400px;
-    overflow-y: auto;
+    min-height: 200px; /* Prevent layout jump while loading */
 }
 
 .conversation-item {
@@ -70,53 +94,31 @@ h2 {
     font-size: 0.9rem;
 }
 
-/* --- Analysis Chat Styles --- */
-#analysis-section p {
-    font-size: 1rem;
-    color: #555;
-    margin-bottom: 1.5rem;
-}
-
-#analysis-input-area {
+/* --- Pagination Controls Styles --- */
+#pagination-controls {
     display: flex;
-    gap: 0.5rem;
-    margin-top: 1rem;
+    justify-content: center;
+    align-items: center;
+    padding-top: 1rem;
+    gap: 1rem;
 }
 
-#lecturer-question {
-    flex-grow: 1;
-    border: 1px solid #ccc;
-    border-radius: 6px;
-    padding: 0.75rem 1rem;
-    font-size: 1rem;
-}
-
-#ask-btn {
-    background-color: #28a745;
+#pagination-controls button {
+    background-color: #007bff;
     color: white;
     border: none;
     border-radius: 6px;
-    padding: 0.75rem 1.5rem;
+    padding: 0.5rem 1rem;
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.2s;
 }
 
-#ask-btn:hover {
-    background-color: #218838;
+#pagination-controls button:hover:not(:disabled) {
+    background-color: #0056b3;
 }
 
-#ask-btn:disabled {
+#pagination-controls button:disabled {
     background-color: #ccc;
     cursor: not-allowed;
-}
-
-#analysis-response-area {
-    background-color: #f9f9f9;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 1rem;
-    min-height: 100px;
-    line-height: 1.7;
-    white-space: pre-wrap;
 }
