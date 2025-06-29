@@ -22,8 +22,26 @@
 
         <section id="analysis-container">
             <h2>ניתוח תשובות הסטודנטים באמצעות AI</h2>
-            <p>בשלב הבא, נוסיף כאן את היכולת לשאול שאלות על כלל השיחות ולקבל ניתוח מרוכז.</p>
-            </section>
+            <div id="analysis-controls">
+                <div class="control-group">
+                    <label for="conversation-select">1. בחר שיחה לניתוח:</label>
+                    <select id="conversation-select" disabled>
+                        <option>טוען שיחות...</option>
+                    </select>
+                </div>
+                <div class="control-group">
+                    <label for="analysis-question">2. הזן שאלה לניתוח:</label>
+                    <textarea id="analysis-question" rows="3" placeholder="לדוגמה: האם הסטודנט פספס אבחנה מבדלת חשובה?"></textarea>
+                </div>
+                <button id="analyze-btn" disabled>נתח שיחה</button>
+            </div>
+            <div id="analysis-response-container">
+                <h3>תוצאות הניתוח:</h3>
+                <div id="analysis-response-area">
+                    <p class="placeholder">תוצאות הניתוח יופיעו כאן...</p>
+                </div>
+            </div>
+        </section>
 
         <section id="conversations-section">
             <h2>רשימת שיחות אחרונות</h2>
